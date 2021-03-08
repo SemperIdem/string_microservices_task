@@ -1,0 +1,30 @@
+version: "3.9"
+
+
+networks:
+  mynet:
+
+services:
+  encryptor_serivce:
+    build: string_encryptor/
+    ports:
+    - "8002:8002"
+    environment:
+      - WORKERS_NUMBER=4
+      - DEFAULT_PORT=8002
+    networks:
+      - mynet
+
+  randomizer_service:
+    build: string_randomizer/
+    ports:
+      - "8001:8001"
+    environment:
+      - ENCRYPTOR_URL=http://encryptor_serivce:8002/
+      - MIN_STRING_LENGTH=3
+      - MAX_STRING_LENGTH=15
+      - DEFAULT_PORT=8001
+
+    networks:
+      - mynet
+
