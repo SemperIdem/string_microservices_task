@@ -15,9 +15,9 @@ import (
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-var(
+var (
 	minLen, maxLen int
-	encUrl = os.Getenv("ENCRYPTOR_URL")
+	encUrl         = os.Getenv("ENCRYPTOR_URL")
 )
 
 func generateRandomString(n int) string {
@@ -30,26 +30,25 @@ func generateRandomString(n int) string {
 
 func randStringsList(n int) []string {
 	list := make([]string, n)
-		for i := 0; i < n; i++ {
-			list[i] = generateRandomString(rand.Intn(maxLen - minLen) + minLen)
-		}
+	for i := 0; i < n; i++ {
+		list[i] = generateRandomString(rand.Intn(maxLen-minLen) + minLen)
+	}
 	return list
 }
 
 func randomEncryptString(w http.ResponseWriter, r *http.Request) {
-
 	param, ok := r.URL.Query()["size"]
-	if !ok || len(param[0]) < 1  {
-		fmt.Fprintf(w ,"Url Param 'size' is missing")
+	if !ok || len(param[0]) < 1 {
+		fmt.Fprintf(w, "Url Param 'size' is missing")
 		return
 	}
 	numberStrings, err := strconv.Atoi(param[0])
 	if numberStrings < 1 {
-		fmt.Fprintf(w,"Url Param 'size' must be positive number")
+		fmt.Fprintf(w, "Url Param 'size' must be positive number")
 		return
 	}
 	randomStringList := randStringsList(numberStrings)
-	jsonStringList, _:= json.Marshal(randomStringList)
+	jsonStringList, _ := json.Marshal(randomStringList)
 	resp, err := http.Post(encUrl, "application/json", bytes.NewBuffer(jsonStringList))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -67,11 +66,7 @@ func randomEncryptString(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Random hash from the recivied list: %s ", list[rand.Intn(numberStrings)])
 }
 
-
-
-
 func main() {
-
 	var errConv error
 	rand.Seed(time.Now().UnixNano())
 	defaultPort := os.Getenv("DEFAULT_PORT")
@@ -83,13 +78,13 @@ func main() {
 
 	maxLenStr := os.Getenv("MAX_STRING_LENGTH")
 	maxLen, errConv = strconv.Atoi(maxLenStr)
-	if errConv != nil || minLen < 0  {
+	if errConv != nil || minLen < 0 {
 		maxLen = 15
 	}
 
 	fmt.Printf("Randomizer service service is listening on port %s.\n", defaultPort)
 	http.HandleFunc("/getRandomHash", randomEncryptString)
-	err := http.ListenAndServe(":" + defaultPort, nil)
+	err := http.ListenAndServe(":"+defaultPort, nil)
 	if err != nil {
 		fmt.Println(err)
 		return

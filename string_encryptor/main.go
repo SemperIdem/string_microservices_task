@@ -11,13 +11,11 @@ import (
 	"strconv"
 )
 
-
-var(
-	worksNum	int
-	jobs chan string
-	results chan string
+var (
+	worksNum int
+	jobs     chan string
+	results  chan string
 )
-
 
 func worker(id int, f func(string) string) {
 	for j := range jobs {
@@ -26,14 +24,12 @@ func worker(id int, f func(string) string) {
 	}
 }
 
-
 func toSha256Hash(s string) string {
 	h := sha256.New()
 	h.Write([]byte(s))
 	sha256Hash := hex.EncodeToString(h.Sum(nil))
 	return sha256Hash
 }
-
 
 func toHashList(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
@@ -53,8 +49,8 @@ func toHashList(w http.ResponseWriter, req *http.Request) {
 	hashList := make([]string, len(listStrings))
 
 	for i := 0; i < len(listStrings); i++ {
-			jobs <- listStrings[i]
-		}
+		jobs <- listStrings[i]
+	}
 	for i := 0; i < len(listStrings); i++ {
 		hashList[i] = <-results
 	}
@@ -69,7 +65,6 @@ func toHashList(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-
 	var errConv error
 	defaultPort := os.Getenv("DEFAULT_PORT")
 	worksNumStr := os.Getenv("WORKERS_NUMBER")
@@ -86,7 +81,7 @@ func main() {
 
 	http.HandleFunc("/", toHashList)
 	fmt.Printf("Encryptor service is listening on port %s.\n", defaultPort)
-	err := http.ListenAndServe(":" + defaultPort, nil)
+	err := http.ListenAndServe(":"+defaultPort, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
