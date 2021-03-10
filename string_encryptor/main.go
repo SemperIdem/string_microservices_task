@@ -37,7 +37,6 @@ func toHashList(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer req.Body.Close()
 	var listStrings []string
 	err = json.Unmarshal(body, &listStrings)
 	if err != nil {
